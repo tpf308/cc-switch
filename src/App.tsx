@@ -579,6 +579,19 @@ function App() {
     };
   }, []);
 
+  // 禁用 WebView 默认右键菜单（返回/刷新/另存为/打印/检查等）。
+  // 文本输入区域保留默认菜单，便于复制粘贴；其余区域由应用自定义菜单接管。
+  useEffect(() => {
+    const handleContextMenu = (event: MouseEvent) => {
+      if (isTextEditableTarget(event.target)) return;
+      event.preventDefault();
+    };
+    window.addEventListener("contextmenu", handleContextMenu);
+    return () => {
+      window.removeEventListener("contextmenu", handleContextMenu);
+    };
+  }, []);
+
   const [launchDashboardOpen, setLaunchDashboardOpen] = useState(false);
   const openHermesWebUI = useOpenHermesWebUI(() =>
     setLaunchDashboardOpen(true),

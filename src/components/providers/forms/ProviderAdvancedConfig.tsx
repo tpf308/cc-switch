@@ -1,10 +1,12 @@
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ChevronDown,
   ChevronRight,
   FlaskConical,
   Coins,
+  Folder,
+  FolderPlus,
   Globe,
   Loader2,
   Search,
@@ -23,11 +25,16 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import type { ProviderTestConfig } from "@/types";
+import type { AppId } from "@/lib/api";
 import {
   useScanProxies,
   useTestProxy,
   type DetectedProxy,
 } from "@/hooks/useGlobalProxy";
+import {
+  useProviderFolders,
+  useCreateProviderFolder,
+} from "@/hooks/useProviderFolders";
 
 export type PricingModelSourceOption = "inherit" | "request" | "response";
 
@@ -37,27 +44,65 @@ interface ProviderPricingConfig {
   pricingModelSource: PricingModelSourceOption;
 }
 
+const NO_FOLDER_VALUE = "__none__";
+
 interface ProviderAdvancedConfigProps {
+  appId: AppId;
   testConfig: ProviderTestConfig;
   pricingConfig: ProviderPricingConfig;
   onTestConfigChange: (config: ProviderTestConfig) => void;
   onPricingConfigChange: (config: ProviderPricingConfig) => void;
   proxyUrl: string;
   onProxyUrlChange: (url: string) => void;
+  folderId?: string;
+  onFolderIdChange: (folderId?: string) => void;
 }
 
 export function ProviderAdvancedConfig({
+  appId,
   testConfig,
   pricingConfig,
   onTestConfigChange,
   onPricingConfigChange,
   proxyUrl,
   onProxyUrlChange,
+  folderId,
+  onFolderIdChange,
 }: ProviderAdvancedConfigProps) {
   const { t } = useTranslation();
   const scanMutation = useScanProxies();
   const testMutation = useTestProxy();
   const [detectedProxies, setDetectedProxies] = useState<DetectedProxy[]>([]);
+
+  const { data: folders = [] } = useProviderFolders(appId);
+  const createFolderMutation = useCreateProviderFolder(appId);
+  const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [newFolderName, setNewFolderName] = useState("");
+  const newFolderInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isCreatingFolder) {
+      const frame = requestAnimationFrame(() => {
+        newFolderInputRef.current?.focus();
+      });
+      return () => cancelAnimationFrame(frame);
+    }
+  }, [isCreatingFolder]);
+
+  const handleCreateFolder = async () => {
+    const name = newFolderName.trim();
+    if (!name) {
+      setIsCreatingFolder(false);
+      return;
+    }
+    try {
+      const folder = await createFolderMutation.mutateAsync(name);
+      onFolderIdChange(folder.id);
+    } finally {
+      setNewFolderName("");
+      setIsCreatingFolder(false);
+    }
+  };
 
   const handleScanProxies = async () => {
     const result = await scanMutation.mutateAsync();
@@ -86,6 +131,114 @@ export function ProviderAdvancedConfig({
 
   return (
     <div className="space-y-4">
+      {/* 所属文件夹 */}
+      <div className="rounded-lg border border-border/50 bg-muted/20">
+        <div className="flex w-full items-center justify-between p-4">
+          <div className="flex items-center gap-3">
+            <Folder className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">
+              {t("provider.folders.sectionTitle", {
+                defaultValue: "所属分组",
+              })}
+            </span>
+          </div>
+        </div>
+        <div className="border-t border-border/50 p-4 space-y-3">
+          {isCreatingFolder ? (
+            <div className="flex gap-2">
+              <Input
+                ref={newFolderInputRef}
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                placeholder={t("provider.folders.createPlaceholder", {
+                  defaultValue: "分组名称",
+                })}
+                className="flex-1 text-sm"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    void handleCreateFolder();
+                  }
+                  if (e.key === "Escape") {
+                    setNewFolderName("");
+                    setIsCreatingFolder(false);
+                  }
+                }}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={createFolderMutation.isPending}
+                onClick={() => void handleCreateFolder()}
+              >
+                {createFolderMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  t("provider.folders.createConfirm", { defaultValue: "创建" })
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setNewFolderName("");
+                  setIsCreatingFolder(false);
+                }}
+              >
+                {t("common.cancel", { defaultValue: "取消" })}
+              </Button>
+            </div>
+          ) : (
+            <div className="flex gap-2">
+              <Select
+                value={folderId ?? NO_FOLDER_VALUE}
+                onValueChange={(value) =>
+                  onFolderIdChange(
+                    value === NO_FOLDER_VALUE ? undefined : value,
+                  )
+                }
+              >
+                <SelectTrigger className="flex-1">
+                  <SelectValue
+                    placeholder={t("provider.folders.selectFolder", {
+                      defaultValue: "选择分组...",
+                    })}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={NO_FOLDER_VALUE}>
+                    {t("provider.folders.noFolder", { defaultValue: "（无）" })}
+                  </SelectItem>
+                  {folders.map((folder) => (
+                    <SelectItem key={folder.id} value={folder.id}>
+                      {folder.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => setIsCreatingFolder(true)}
+                title={t("provider.folders.createNew", {
+                  defaultValue: "新建分组",
+                })}
+              >
+                <FolderPlus className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          <p className="text-xs text-muted-foreground">
+            {t("provider.folders.sectionHint", {
+              defaultValue: "在列表的「按分组」视图下，此供应商会归入所选分组。",
+            })}
+          </p>
+        </div>
+      </div>
+
       {/* 出站代理 */}
       <div className="rounded-lg border border-border/50 bg-muted/20">
         <div className="flex w-full items-center justify-between p-4">

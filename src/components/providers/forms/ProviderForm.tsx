@@ -303,6 +303,9 @@ function ProviderFormFull({
   const [proxyUrl, setProxyUrl] = useState<string>(
     () => initialData?.meta?.proxyUrl ?? "",
   );
+  const [folderId, setFolderId] = useState<string | undefined>(
+    () => initialData?.meta?.folderId ?? undefined,
+  );
   const supportsFullUrl = appId === "claude" || appId === "codex";
   const [localIsFullUrl, setLocalIsFullUrl] = useState<boolean>(() => {
     if (!supportsFullUrl) return false;
@@ -345,6 +348,7 @@ function ProviderFormFull({
     }
     setEndpointAutoSelect(initialData?.meta?.endpointAutoSelect ?? true);
     setProxyUrl(initialData?.meta?.proxyUrl ?? "");
+    setFolderId(initialData?.meta?.folderId ?? undefined);
     setLocalIsFullUrl(
       supportsFullUrl ? (initialData?.meta?.isFullUrl ?? false) : false,
     );
@@ -1363,6 +1367,7 @@ function ProviderFormFull({
               : undefined,
       endpointAutoSelect,
       proxyUrl: proxyUrl.trim() || undefined,
+      folderId: folderId || undefined,
       claudeDesktopMode: undefined,
       // 保存 providerType（用于识别 Copilot / Codex OAuth 等特殊供应商）
       providerType,
@@ -2313,12 +2318,15 @@ function ProviderFormFull({
             appId !== "openclaw" &&
             appId !== "hermes" && (
               <ProviderAdvancedConfig
+                appId={appId}
                 testConfig={testConfig}
                 pricingConfig={pricingConfig}
                 onTestConfigChange={setTestConfig}
                 onPricingConfigChange={setPricingConfig}
                 proxyUrl={proxyUrl}
                 onProxyUrlChange={setProxyUrl}
+                folderId={folderId}
+                onFolderIdChange={setFolderId}
               />
             )}
 

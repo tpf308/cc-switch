@@ -352,6 +352,18 @@ impl Database {
             [],
         );
 
+        // 12. Provider Folders 表（供应商文件夹分组）
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS provider_folders (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                app_type TEXT NOT NULL,
+                sort_index INTEGER NOT NULL DEFAULT 0
+            )",
+            [],
+        )
+        .map_err(|e| AppError::Database(e.to_string()))?;
+
         Ok(())
     }
 
@@ -430,6 +442,11 @@ impl Database {
                         log::info!("迁移数据库从 v9 到 v10（添加 Hermes Agent 支持）");
                         Self::migrate_v9_to_v10(conn)?;
                         Self::set_user_version(conn, 10)?;
+                    }
+                    10 => {
+                        log::info!("迁移数据库从 v10 到 v11（添加供应商文件夹分组）");
+                        Self::migrate_v10_to_v11(conn)?;
+                        Self::set_user_version(conn, 11)?;
                     }
                     _ => {
                         return Err(AppError::Database(format!(
@@ -1197,6 +1214,23 @@ impl Database {
         }
 
         log::info!("v9 -> v10 迁移完成：已添加 Hermes Agent 支持");
+        Ok(())
+    }
+
+    /// v10 -> v11 迁移：添加供应商文件夹分组表
+    fn migrate_v10_to_v11(conn: &Connection) -> Result<(), AppError> {
+        conn.execute(
+            "CREATE TABLE IF NOT EXISTS provider_folders (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                app_type TEXT NOT NULL,
+                sort_index INTEGER NOT NULL DEFAULT 0
+            )",
+            [],
+        )
+        .map_err(|e| AppError::Database(e.to_string()))?;
+
+        log::info!("v10 -> v11 迁移完成：已添加供应商文件夹分组表");
         Ok(())
     }
 

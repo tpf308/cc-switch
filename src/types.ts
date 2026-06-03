@@ -227,6 +227,9 @@ export interface ProviderMeta {
   // 为空/未设置表示直连（不走任何代理，也忽略系统代理）。
   // 仅在 cc-switch 代理转发该供应商请求时生效。
   proxyUrl?: string;
+  // 所属文件夹 ID（用于分组显示）。
+  // 存在 ProviderMeta 的 JSON 中，与 proxyUrl 等字段同级。
+  folderId?: string;
 }
 
 // Skill 同步方式
@@ -545,6 +548,17 @@ export interface UniversalProvider {
 
 // 统一供应商映射（id -> UniversalProvider）
 export type UniversalProvidersMap = Record<string, UniversalProvider>;
+
+// ============================================================================
+// 供应商文件夹（用于分组显示）
+// ============================================================================
+
+export interface ProviderFolder {
+  id: string;
+  name: string;
+  appType: string;
+  sortIndex: number;
+}
 
 // ============================================================================
 // OpenCode 专属配置（v3.9.2+）

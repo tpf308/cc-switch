@@ -5,6 +5,15 @@ use std::collections::HashMap;
 
 // SSOT 模式：不再写供应商副本文件
 
+/// 供应商文件夹（用于分组显示）
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ProviderFolder {
+    pub id: String,
+    pub name: String,
+    pub app_type: String,
+    pub sort_index: i64,
+}
+
 /// 供应商结构体
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Provider {
@@ -494,6 +503,10 @@ pub struct ProviderMeta {
     /// 仅在 CC Switch 代理转发该供应商请求时生效。
     #[serde(rename = "proxyUrl", skip_serializing_if = "Option::is_none")]
     pub proxy_url: Option<String>,
+    /// 所属文件夹 ID（用于分组显示）。
+    /// 存在 ProviderMeta 的 JSON 中，与 proxyUrl 等字段同级。
+    #[serde(rename = "folderId", skip_serializing_if = "Option::is_none")]
+    pub folder_id: Option<String>,
 }
 
 impl ProviderMeta {
@@ -948,6 +961,35 @@ mod tests {
         let value = serde_json::to_value(&meta).expect("serialize ProviderMeta");
 
         assert!(value.get("pricingModelSource").is_none());
+    }
+
+    #[test]
+    fn provider_meta_folder_id_round_trips_as_camel_case() {
+        // 未设置时不应序列化出 folderId（保持 meta JSON 紧凑）
+        let empty = ProviderMeta::default();
+        let value = serde_json::to_value(&empty).expect("serialize empty meta");
+        assert!(value.get("folderId").is_none());
+
+        // 设置后用 camelCase 键序列化，并可往返反序列化
+        let meta = ProviderMeta {
+            folder_id: Some("folder-123".to_string()),
+            ..ProviderMeta::default()
+        };
+        let value = serde_json::to_value(&meta).expect("serialize meta");
+        assert_eq!(
+            value.get("folderId").and_then(|v| v.as_str()),
+            Some("folder-123")
+        );
+        assert!(value.get("folder_id").is_none());
+
+        let parsed: ProviderMeta =
+            serde_json::from_value(value).expect("deserialize meta");
+        assert_eq!(parsed.folder_id.as_deref(), Some("folder-123"));
+
+        // 旧库里没有 folderId 的 meta 反序列化为 None
+        let legacy: ProviderMeta =
+            serde_json::from_str("{}").expect("deserialize legacy meta");
+        assert!(legacy.folder_id.is_none());
     }
 
     #[test]
