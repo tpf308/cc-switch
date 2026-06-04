@@ -64,7 +64,7 @@ use tauri_plugin_dialog::{DialogExt, MessageDialogButtons, MessageDialogKind};
 use std::sync::Arc;
 #[cfg(target_os = "macos")]
 use tauri::image::Image;
-use tauri::tray::{TrayIconBuilder, TrayIconEvent};
+use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 use tauri::RunEvent;
 use tauri::{Emitter, Manager};
 use tauri_plugin_window_state::{AppHandleExt, StateFlags};
@@ -821,7 +821,20 @@ pub fn run() {
             let mut tray_builder = TrayIconBuilder::with_id(tray::TRAY_ID)
                 .tooltip("CC Switch") // 鼠标悬停提示
                 .on_tray_icon_event(|tray, event| match event {
-                    // 鼠标悬停/点击到托盘图标时，后台异步刷新用量缓存，
+                    // 左键单击（按下后抬起）直接打开主界面，符合常见托盘操作习惯；
+                    // 右键仍弹出菜单（show_menu_on_left_click(false)）。
+                    TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } => {
+                        tray::handle_tray_menu_event(tray.app_handle(), "show_main");
+                        let app = tray.app_handle().clone();
+                        tauri::async_runtime::spawn(async move {
+                            crate::tray::refresh_all_usage_in_tray(&app).await;
+                        });
+                    }
+                    // 鼠标悬停/其它点击到托盘图标时，后台异步刷新用量缓存，
                     // 让用户下一次（或快速打开菜单的那一刻）看到较新的数字。
                     // refresh_all_usage_in_tray 内部有 10 秒防抖。
                     TrayIconEvent::Enter { .. } | TrayIconEvent::Click { .. } => {
@@ -836,7 +849,7 @@ pub fn run() {
                 .on_menu_event(|app, event| {
                     tray::handle_tray_menu_event(app, &event.id.0);
                 })
-                .show_menu_on_left_click(true);
+                .show_menu_on_left_click(false);
 
             // 使用平台对应的托盘图标（macOS 使用模板图标适配深浅色）
             #[cfg(target_os = "macos")]
