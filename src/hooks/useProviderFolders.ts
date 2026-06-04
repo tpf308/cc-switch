@@ -4,11 +4,7 @@
  * 为供应商列表的分组显示提供文件夹的查询与增删改。
  */
 
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { providerFoldersApi, type AppId } from "@/lib/api";
 import type { ProviderFolder } from "@/types";

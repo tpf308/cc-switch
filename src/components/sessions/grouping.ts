@@ -31,8 +31,7 @@ export const normalizeFolderKey = (dir?: string | null): string => {
   // (drive-letter prefix or original backslashes), fold case so the same
   // folder referenced with different casing groups together. POSIX paths stay
   // case-sensitive. Display still uses the original casing from each session.
-  const isWindowsPath =
-    /^[a-zA-Z]:/.test(normalized) || trimmed.includes("\\");
+  const isWindowsPath = /^[a-zA-Z]:/.test(normalized) || trimmed.includes("\\");
   return isWindowsPath ? normalized.toLowerCase() : normalized;
 };
 

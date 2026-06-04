@@ -982,13 +982,11 @@ mod tests {
         );
         assert!(value.get("folder_id").is_none());
 
-        let parsed: ProviderMeta =
-            serde_json::from_value(value).expect("deserialize meta");
+        let parsed: ProviderMeta = serde_json::from_value(value).expect("deserialize meta");
         assert_eq!(parsed.folder_id.as_deref(), Some("folder-123"));
 
         // 旧库里没有 folderId 的 meta 反序列化为 None
-        let legacy: ProviderMeta =
-            serde_json::from_str("{}").expect("deserialize legacy meta");
+        let legacy: ProviderMeta = serde_json::from_str("{}").expect("deserialize legacy meta");
         assert!(legacy.folder_id.is_none());
     }
 

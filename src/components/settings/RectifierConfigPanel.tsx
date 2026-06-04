@@ -3,10 +3,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import {
-  settingsApi,
-  type RectifierConfig,
-} from "@/lib/api/settings";
+import { settingsApi, type RectifierConfig } from "@/lib/api/settings";
 
 export function RectifierConfigPanel() {
   const { t } = useTranslation();

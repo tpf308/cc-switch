@@ -65,10 +65,7 @@ pub fn update_provider_folder_sort_order(
     app_type: String,
     state: State<'_, AppState>,
 ) -> Result<(), String> {
-    let pairs: Vec<(String, i64)> = updates
-        .into_iter()
-        .map(|u| (u.id, u.sort_index))
-        .collect();
+    let pairs: Vec<(String, i64)> = updates.into_iter().map(|u| (u.id, u.sort_index)).collect();
     state
         .db
         .update_provider_folder_sort_order(&pairs, &app_type)

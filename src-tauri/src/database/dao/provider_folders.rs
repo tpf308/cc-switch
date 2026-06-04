@@ -5,10 +5,7 @@ use rusqlite::params;
 
 impl Database {
     /// 获取指定 app 下的所有文件夹（按 sort_index 排序）
-    pub fn get_provider_folders(
-        &self,
-        app_type: &str,
-    ) -> Result<Vec<ProviderFolder>, AppError> {
+    pub fn get_provider_folders(&self, app_type: &str) -> Result<Vec<ProviderFolder>, AppError> {
         let conn = lock_conn!(self.conn);
         let mut stmt = conn
             .prepare(
@@ -78,9 +75,7 @@ impl Database {
             )
             .map_err(|e| AppError::Database(e.to_string()))?;
         if affected == 0 {
-            return Err(AppError::Database(format!(
-                "文件夹 {id} 不存在"
-            )));
+            return Err(AppError::Database(format!("文件夹 {id} 不存在")));
         }
         Ok(())
     }
@@ -119,8 +114,7 @@ impl Database {
 
             let mut updates = Vec::new();
             for row in rows {
-                let (provider_id, meta_str) =
-                    row.map_err(|e| AppError::Database(e.to_string()))?;
+                let (provider_id, meta_str) = row.map_err(|e| AppError::Database(e.to_string()))?;
                 if let Ok(mut meta_val) = serde_json::from_str::<serde_json::Value>(&meta_str) {
                     if meta_val
                         .get("folderId")
@@ -147,11 +141,8 @@ impl Database {
         }
 
         // 删除文件夹
-        tx.execute(
-            "DELETE FROM provider_folders WHERE id = ?1",
-            params![id],
-        )
-        .map_err(|e| AppError::Database(e.to_string()))?;
+        tx.execute("DELETE FROM provider_folders WHERE id = ?1", params![id])
+            .map_err(|e| AppError::Database(e.to_string()))?;
 
         tx.commit().map_err(|e| AppError::Database(e.to_string()))?;
         Ok(())
@@ -265,7 +256,10 @@ mod tests {
         db.rename_provider_folder("fa", "Renamed A")
             .expect("rename");
         let folders = db.get_provider_folders("claude").expect("get");
-        assert_eq!(folders.iter().find(|f| f.id == "fa").unwrap().name, "Renamed A");
+        assert_eq!(
+            folders.iter().find(|f| f.id == "fa").unwrap().name,
+            "Renamed A"
+        );
 
         // 排序更新
         db.update_provider_folder_sort_order(

@@ -233,7 +233,8 @@ export function ProviderAdvancedConfig({
           )}
           <p className="text-xs text-muted-foreground">
             {t("provider.folders.sectionHint", {
-              defaultValue: "在列表的「按分组」视图下，此供应商会归入所选分组。",
+              defaultValue:
+                "在列表的「按分组」视图下，此供应商会归入所选分组。",
             })}
           </p>
         </div>

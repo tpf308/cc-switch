@@ -1914,15 +1914,19 @@ mod tests {
 
         // 非 adaptive 组（haiku / sonnet-4-5）不带 1M
         assert!(
-            !StreamCheckService::anthropic_probe_beta("claude-haiku-4-5-20251001").contains(BETA_1M)
+            !StreamCheckService::anthropic_probe_beta("claude-haiku-4-5-20251001")
+                .contains(BETA_1M)
         );
         assert!(
-            !StreamCheckService::anthropic_probe_beta("claude-sonnet-4-5-20250929").contains(BETA_1M)
+            !StreamCheckService::anthropic_probe_beta("claude-sonnet-4-5-20250929")
+                .contains(BETA_1M)
         );
 
         // base beta 始终保留 claude-code 标记
-        assert!(StreamCheckService::anthropic_probe_beta("claude-haiku-4-5-20251001")
-            .contains("claude-code-20250219"));
+        assert!(
+            StreamCheckService::anthropic_probe_beta("claude-haiku-4-5-20251001")
+                .contains("claude-code-20250219")
+        );
     }
 
     #[test]

@@ -596,49 +596,49 @@ export function ProviderList({
       >
         <SortableProviderCard
           provider={provider}
-        isCurrent={
-          isOmo
-            ? isOmoCurrent
-            : isOmoSlim
-              ? isOmoSlimCurrent
-              : appId === "hermes"
-                ? isHermesCurrent
-                : provider.id === currentProviderId
-        }
-        appId={appId}
-        isInConfig={isProviderInConfig(provider.id)}
-        isOmo={isOmo}
-        isOmoSlim={isOmoSlim}
-        onSwitch={onSwitch}
-        onEdit={onEdit}
-        onDelete={onDelete}
-        onRemoveFromConfig={onRemoveFromConfig}
-        onDisableOmo={onDisableOmo}
-        onDisableOmoSlim={onDisableOmoSlim}
-        onDuplicate={onDuplicate}
-        onConfigureUsage={onConfigureUsage}
-        onOpenWebsite={onOpenWebsite}
-        onOpenTerminal={onOpenTerminal}
-        onTest={handleTest}
-        isTesting={isChecking(provider.id)}
-        isProxyRunning={isProxyRunning}
-        isProxyTakeover={isProxyTakeover}
-        isAutoFailoverEnabled={isFailoverModeActive}
-        failoverPriority={getFailoverPriority(provider.id)}
-        isInFailoverQueue={isInFailoverQueue(provider.id)}
-        onToggleFailover={(enabled) =>
-          handleToggleFailover(provider.id, enabled)
-        }
-        activeProviderId={activeProviderId}
-        // OpenClaw: default model / Hermes: model.provider === provider.id
-        isDefaultModel={
-          appId === "hermes"
-            ? isHermesCurrent
-            : isProviderDefaultModel(provider.id)
-        }
-        onSetAsDefault={
-          onSetAsDefault ? () => onSetAsDefault(provider) : undefined
-        }
+          isCurrent={
+            isOmo
+              ? isOmoCurrent
+              : isOmoSlim
+                ? isOmoSlimCurrent
+                : appId === "hermes"
+                  ? isHermesCurrent
+                  : provider.id === currentProviderId
+          }
+          appId={appId}
+          isInConfig={isProviderInConfig(provider.id)}
+          isOmo={isOmo}
+          isOmoSlim={isOmoSlim}
+          onSwitch={onSwitch}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onRemoveFromConfig={onRemoveFromConfig}
+          onDisableOmo={onDisableOmo}
+          onDisableOmoSlim={onDisableOmoSlim}
+          onDuplicate={onDuplicate}
+          onConfigureUsage={onConfigureUsage}
+          onOpenWebsite={onOpenWebsite}
+          onOpenTerminal={onOpenTerminal}
+          onTest={handleTest}
+          isTesting={isChecking(provider.id)}
+          isProxyRunning={isProxyRunning}
+          isProxyTakeover={isProxyTakeover}
+          isAutoFailoverEnabled={isFailoverModeActive}
+          failoverPriority={getFailoverPriority(provider.id)}
+          isInFailoverQueue={isInFailoverQueue(provider.id)}
+          onToggleFailover={(enabled) =>
+            handleToggleFailover(provider.id, enabled)
+          }
+          activeProviderId={activeProviderId}
+          // OpenClaw: default model / Hermes: model.provider === provider.id
+          isDefaultModel={
+            appId === "hermes"
+              ? isHermesCurrent
+              : isProviderDefaultModel(provider.id)
+          }
+          onSetAsDefault={
+            onSetAsDefault ? () => onSetAsDefault(provider) : undefined
+          }
         />
       </div>
     );
@@ -727,11 +727,7 @@ export function ProviderList({
     const newIndex = sourceGroup.providers.findIndex((p) => p.id === over.id);
     if (oldIndex === -1 || newIndex === -1) return;
 
-    const reorderedGroup = arrayMove(
-      sourceGroup.providers,
-      oldIndex,
-      newIndex,
-    );
+    const reorderedGroup = arrayMove(sourceGroup.providers, oldIndex, newIndex);
 
     // 用重排后的组替换，按 allGroups 顺序拼回完整列表
     const flattened: Provider[] = [];
@@ -1019,7 +1015,7 @@ export function ProviderList({
         title={t("provider.folders.deleteTitle", { defaultValue: "删除分组" })}
         message={t("provider.folders.deleteConfirm", {
           defaultValue:
-            '删除分组「{{name}}」？里面的供应商会回到「未分配」，不会被删除。',
+            "删除分组「{{name}}」？里面的供应商会回到「未分配」，不会被删除。",
           name: folderPendingDelete?.name ?? "",
         })}
         confirmText={t("provider.folders.delete", { defaultValue: "删除" })}
@@ -1091,7 +1087,9 @@ export function ProviderList({
                       <DropdownMenuItem
                         key={folder.id}
                         disabled={isCurrent}
-                        onClick={() => moveProviderTo(ctxMenu.provider, folder.id)}
+                        onClick={() =>
+                          moveProviderTo(ctxMenu.provider, folder.id)
+                        }
                       >
                         <Check
                           className={
@@ -1107,7 +1105,9 @@ export function ProviderList({
                 )}
               </DropdownMenuSubContent>
             </DropdownMenuSub>
-            <DropdownMenuItem onClick={() => openFolderDialog(ctxMenu.provider)}>
+            <DropdownMenuItem
+              onClick={() => openFolderDialog(ctxMenu.provider)}
+            >
               <FolderPlus className="mr-2 size-3.5" />
               {t("provider.folders.createAndMove", {
                 defaultValue: "新建分组并移入…",

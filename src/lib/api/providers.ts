@@ -270,7 +270,10 @@ export const providerFoldersApi = {
     updates: FolderSortUpdate[],
     appType: string,
   ): Promise<void> {
-    return await invoke("update_provider_folder_sort_order", { updates, appType });
+    return await invoke("update_provider_folder_sort_order", {
+      updates,
+      appType,
+    });
   },
 
   async moveProvider(
@@ -278,6 +281,10 @@ export const providerFoldersApi = {
     appType: string,
     folderId: string | null,
   ): Promise<void> {
-    return await invoke("move_provider_to_folder", { providerId, appType, folderId });
+    return await invoke("move_provider_to_folder", {
+      providerId,
+      appType,
+      folderId,
+    });
   },
 };
