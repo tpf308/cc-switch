@@ -1189,7 +1189,7 @@ function App() {
                   variant="ghost"
                   size="icon"
                   onClick={() => {
-                    setSettingsDefaultTab("general");
+                    setSettingsDefaultTab("usage");
                     setCurrentView("settings");
                   }}
                   title={t("common.settings")}
