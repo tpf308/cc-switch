@@ -211,11 +211,11 @@ export function SettingsPage({
           className="flex flex-col h-full"
         >
           <TabsList className="grid w-full grid-cols-4 mb-6 glass rounded-lg">
+            <TabsTrigger value="usage">{t("usage.title")}</TabsTrigger>
+            <TabsTrigger value="proxy">{t("settings.tabProxy")}</TabsTrigger>
             <TabsTrigger value="general">
               {t("settings.tabGeneral")}
             </TabsTrigger>
-            <TabsTrigger value="usage">{t("usage.title")}</TabsTrigger>
-            <TabsTrigger value="proxy">{t("settings.tabProxy")}</TabsTrigger>
             <TabsTrigger value="advanced">
               {t("settings.tabAdvanced")}
             </TabsTrigger>
